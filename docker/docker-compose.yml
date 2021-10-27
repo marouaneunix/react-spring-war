@@ -9,3 +9,13 @@ services:
       POSTGRES_DB: pcc
     ports:
       - 5432:5432
+  sql-server:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: pcc-client
+      MYSQL_USER: pcc-client
+      MYSQL_PASSWORD: pcc-client
+    ports:
+      - 3306:3306
