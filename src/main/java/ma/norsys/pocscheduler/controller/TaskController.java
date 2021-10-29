@@ -6,6 +6,8 @@ import ma.norsys.pocscheduler.repository.TaskStatus;
 import ma.norsys.pocscheduler.service.TaskService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/tasks")
 @RequiredArgsConstructor
@@ -27,6 +29,11 @@ public class TaskController {
         }else if(TaskStatus.CANCEL.equals(status)) {
             this.taskService.cancelTask(taskId);
         }
+    }
+
+    @GetMapping
+    public List<Task> findAll() {
+        return taskService.findAll();
     }
 
 

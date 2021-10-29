@@ -7,6 +7,7 @@ import ma.norsys.pocscheduler.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Service
 @Transactional
@@ -30,5 +31,9 @@ public class TaskService {
     public void cancelTask(Long taskId) {
         Task task = this.taskRepository.findById(taskId).orElseThrow(() -> new IllegalArgumentException("Task not found"));
         this.schedulerService.cancelTask(task);
+    }
+
+    public List<Task> findAll() {
+        return this.taskRepository.findAll();
     }
 }

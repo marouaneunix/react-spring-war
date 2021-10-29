@@ -1,1 +1,1 @@
-ALTER TABLE task add column status text DEFAULT 'WAITING';
+ALTER TABLE task add column  status text DEFAULT 'WAITING';

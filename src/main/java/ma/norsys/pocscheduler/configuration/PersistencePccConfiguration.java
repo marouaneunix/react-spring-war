@@ -30,6 +30,7 @@ public class PersistencePccConfiguration {
         this.env = env;
     }
 
+    // TODO: two data source with one db ***
     @Primary
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource")

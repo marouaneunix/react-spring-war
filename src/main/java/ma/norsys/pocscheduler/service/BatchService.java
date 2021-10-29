@@ -13,6 +13,9 @@ public class BatchService{
 
     private final JdbcTemplate jdbcTemplate;
     public void runBatch(Task task) {
+        /**
+         * code
+         */
         jdbcTemplate.query("select * from dwh",rs -> {
             log.info("dwh id {}, name {}",rs.getLong("id"),rs.getString("name"));
         });

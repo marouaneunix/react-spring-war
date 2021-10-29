@@ -35,7 +35,7 @@ public class SchedulerService {
         //TODO: To be approved example : (search for enabled and canceled tasks)
         List<Task> tasks = taskRepository.findAll();
         tasks.stream()
-                .filter(task -> List.of(TaskStatus.ENABLE, TaskStatus.CANCEL).contains(task.getStatus()))
+                .filter(task -> List.of(TaskStatus.ENABLE, TaskStatus.WAITING).contains(task.getStatus()))
                 .forEach(this::schedule);
     }
 
