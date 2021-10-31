@@ -3,7 +3,9 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import setupAxiosInterceptors from "./config/axios-interceptor";
 
+setupAxiosInterceptors();
 ReactDOM.render(
   <React.StrictMode>
     <App />
