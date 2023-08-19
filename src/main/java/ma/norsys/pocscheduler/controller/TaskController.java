@@ -11,13 +11,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TaskController {
 
-
     private final TaskService taskService;
-
 
     @GetMapping
     public List<TaskDto> findAll() {
         return taskService.findAll();
+    }
+
+    @PostMapping
+    public void saveTask(@RequestBody TaskDto taskDto){
+        taskService.saveTask();
     }
 
 
