@@ -18,7 +18,7 @@ const setupAxiosInterceptors = () => {
     }
     return Promise.reject(err);
   };
-  console.log('ok');
+
   axios.interceptors.request.use(onRequestSuccess);
   axios.interceptors.response.use(onResponseSuccess, onResponseError);
 };

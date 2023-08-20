@@ -4,12 +4,21 @@ import axios from "axios";
 import {HashRouter, Link, Route, RouteComponentProps} from "react-router-dom";
 
 interface Task {
-    name: string,
+    nom: string,
     cron: string
 }
 
 
-const Index = () => <h2>Home</h2>;
+const Index = () => {
+
+  const createTask = async () => {
+    await axios.post('/api/tasks', {
+      nom: "mytask"
+    });
+  }
+
+  return <button onClick={createTask}>Create task</button>
+};
 
 const Tasks = ({match}: RouteComponentProps<{ id: string }>) => {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -25,7 +34,7 @@ const Tasks = ({match}: RouteComponentProps<{ id: string }>) => {
         <>
             <h2>This is a page for tasks with ID: {match.params.id} </h2>
             {
-                tasks.map(task => <p>{task.name} {task.cron}</p>)
+                tasks.map(task => <p>{task.nom} {task.cron}</p>)
             }
         </>
     )
