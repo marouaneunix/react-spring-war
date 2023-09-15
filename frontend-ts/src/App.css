@@ -36,3 +36,46 @@
     transform: rotate(360deg);
   }
 }
+
+.page-content {
+  min-height: calc(100vh - 110px);
+
+  .container {
+    width: 88%;
+    margin: 0 auto;
+    padding: 10px 40px;
+    margin-top: 20px;
+    background: #f8f9fa;
+    font-family: 'Roboto';
+  }
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: 700;
+  src: local('Open Sans'), url(style/fonts/OpenSans-Bold.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: 600;
+  src: local('Open Sans'), url(style/fonts/OpenSans-SemiBold.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: 500;
+  src: local('Open Sans'), url(style/fonts/OpenSans-Medium.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: 400;
+  src: local('Open Sans'), url(style/fonts/OpenSans-Regular.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: 300;
+  src: local('Open Sans'), url(style/fonts/OpenSans-Light.ttf) format('truetype');
+}
