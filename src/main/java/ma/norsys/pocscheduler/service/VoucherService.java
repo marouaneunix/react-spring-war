@@ -1,10 +1,10 @@
-package ma.norsys.pocscheduler.service;
+package ma.washmenara.pocscheduler.service;
 
 
 import lombok.RequiredArgsConstructor;
-import ma.norsys.pocscheduler.controller.TaskDto;
-import ma.norsys.pocscheduler.domain.Voucher;
-import ma.norsys.pocscheduler.repository.VoucherRepository;
+import ma.washmenara.pocscheduler.controller.dto.VoucherDto;
+import ma.washmenara.pocscheduler.domain.Voucher;
+import ma.washmenara.pocscheduler.repository.VoucherRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,17 +12,17 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class TaskService {
+public class VoucherService {
 
-    private final VoucherRepository taskRepository;
+    private final VoucherRepository voucherRepository;
 
-    public List<TaskDto> findAll() {
-        return taskRepository.findAll().stream().map(task -> new TaskDto(task.getName(), "")).collect(Collectors.toList());
+        public List<VoucherDto> findAll() {
+        return voucherRepository.findAll().stream().map(voucher -> new VoucherDto(voucher.getTotal())).collect(Collectors.toList());
     }
 
-    public void saveTask() {
-        Voucher task = new Voucher();
-        task.setName("My task");
-        taskRepository.save(task);
+    public void saveVoucher() {
+        Voucher voucher = new Voucher();
+        voucher.setTotal(20);
+        voucherRepository.save(voucher);
     }
 }

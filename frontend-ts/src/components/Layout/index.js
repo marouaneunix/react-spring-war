@@ -16,12 +16,7 @@ const Layout = () => {
       id: 2,
       label: "Produits",
       icon: "pi pi-fw pi-cog",
-      url: "/setting",
-    },
-    {
-      id: 3,
-      label: "Calendrier",
-      icon: "pi pi-fw pi-calendar",
+      url: "/configuration",
     },
   ];
 

@@ -7,6 +7,9 @@ import Configuration from "./components/Configuration/Configuration";
 import InvoiceGenerator from "./components/InvoiceGenerator/InvoiceGenerator";
 import Clients from "./components/Clients/Clients";
 import ClientCalendar from "./components/ClientCalendar/ClientCalendar";
+import "primereact/resources/themes/lara-light-indigo/theme.css"; //theme
+import "primereact/resources/primereact.min.css"; //core css
+import "primeicons/primeicons.css";
 import "./App.css";
 
 const queryClient = new QueryClient({

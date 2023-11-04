@@ -24,10 +24,6 @@
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -41,7 +37,7 @@
   min-height: calc(100vh - 110px);
 
   .container {
-    width: 88%;
+    width: 93%;
     margin: 0 auto;
     padding: 10px 40px;
     margin-top: 20px;
@@ -78,4 +74,23 @@
   font-family: 'Open Sans';
   font-weight: 300;
   src: local('Open Sans'), url(style/fonts/OpenSans-Light.ttf) format('truetype');
+}
+
+.p-confirm-popup .p-confirm-popup-content {
+  padding: 1rem 1.25rem;
+}
+.p-confirm-popup .p-confirm-popup-footer {
+  padding: 0 1.25rem 0.5rem 1.25rem;
+  .p-button.p-button-sm {
+    padding: 0.4rem 1rem;
+    
+  }
+  .p-button{
+    &:focus {
+      box-shadow: none;
+    }
+  }
+}
+.p-confirm-popup {
+  box-shadow: 0px 3px 3px 0px rgba(41, 57, 77, 0.01);
 }

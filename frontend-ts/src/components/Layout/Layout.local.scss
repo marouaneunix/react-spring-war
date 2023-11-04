@@ -17,8 +17,12 @@
   padding: 0px 0px 0px 50px;
   background: #1c2d57;
 
+  a {
+    text-decoration: none;
+  }
+
   .menu_item {
-    padding: 12px 30px;
+    padding: 10px 30px;
     display: flex;
     align-items: center;
     color: rgba(177, 227, 255, 1);
@@ -27,6 +31,7 @@
     i {
       margin-right: 5px;
       cursor: pointer;
+      font-size: 20px;
     }
     label {
       cursor: pointer;

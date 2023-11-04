@@ -1,4 +1,4 @@
-package ma.norsys.pocscheduler.controller;
+package ma.norsys.pocscheduler.controller.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -6,13 +6,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TaskDto {
+public class ClientDto {
+
+    private Long id;
+
     @NotBlank
-    private String nom;
+    private String name;
+
+    private String society;
+
     @NotBlank
-    private String cron;
+    private String ice;
+
+    private Date archivedAt;
 }

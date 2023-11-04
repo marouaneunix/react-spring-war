@@ -1,4 +1,4 @@
-package ma.washmenara.pocscheduler.domain;
+package ma.norsys.pocscheduler.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,20 +13,18 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Voucher {
+@Table(uniqueConstraints={@UniqueConstraint(columnNames = {"ice"})})
+public class Client {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     private Long id;
 
     private String name;
 
-    private String details;
+    private String society;
 
-    private float total;
+    private String ice;
 
-    private Date createdAt;
-
-    @ManyToOne
-    private Client client;
+    private Date archivedAt;
 }

@@ -1,59 +1,79 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, useRef, Fragment } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "react-query";
+import moment from "moment";
 
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
-import { Divider } from "primereact/divider";
-import { InputSwitch } from "primereact/inputswitch";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import frLocale from "@fullcalendar/core/locales/fr";
 
-// import { getVoucherDates } from "../../api";
+import {
+  getClient,
+  getProductLists,
+  getVouchersList,
+  saveClientVoucher,
+} from "../../api";
 
 import PageHeader from "../common/PageHeader";
 import "./ClientCalendar.local.scss";
 
 const ClientCalendar = () => {
-  const [checked, setChecked] = useState(false);
-  const [nbrVoucher, setNbrVoucher] = useState(0);
-  const [clickedDate, setClickedDate] = useState(null);
-  const [visible, setVisible] = useState(false);
-  const [events, setEvents] = useState(false);
   let { id } = useParams();
-  let todayStr = new Date().toISOString().replace(/T.*$/, ""); // YYYY-MM-DD of today
+  const calendarRef = useRef();
+  const [client, setClient] = useState(null);
+  const [vouchers, setVouchers] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [selectedVoucher, setSelectedVoucher] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [nbrVoucher, setNbrVoucher] = useState(0);
+  const [visible, setVisible] = useState(false);
+  const [monthCalendar, setMonthCalendar] = useState(moment().month() + 1);
 
-  const month =
-    document.getElementsByClassName("fc-daygrid-day")[7] &&
-    document
-      .getElementsByClassName("fc-daygrid-day")[7]
-      .getAttribute("data-date")
-      .split("-")[1];
-
-  let iElements = document.getElementsByClassName("fc-bg-event");
-  for (let i = 0; i < iElements.length; i++) {
-    if (iElements[i].getElementsByTagName("i").length > 0) {
-      var span = document.createElement("span");
-      let text = iElements[i].getElementsByTagName("i")[0].textContent;
-      span.appendChild(document.createTextNode(text));
-      iElements[i].removeChild(iElements[i].getElementsByTagName("i")[0]);
-      iElements[i].appendChild(span);
+  let productsQuery = useQuery(["getProductLists"], async () => {
+    try {
+      const response = await getProductLists();
+      setProducts(response.data ? response.data.actives : []);
+    } catch (e) {
+      return null;
     }
-  }
+  });
 
-  // let clientsQuery = useQuery(["getClientsList", filter], async () => {
-  //   try {
-  //     const response = await getVoucherDates(filter);
-  //     setClients(response.data.data);
-  //     setNbrClients(response.data.nbResult ? response.data.nbResult : 0);
-  //   } catch (e) {
-  //     return null;
-  //   }
-  // });
+  let clientQuery = useQuery(["getClient"], async () => {
+    try {
+      const response = await getClient(id);
+      setClient(response.data ? response.data : []);
+    } catch (e) {
+      return null;
+    }
+  });
 
-  const renderFetchingLines = () => {
+  let vouchersQuery = useQuery(["getVouchersList", monthCalendar], async () => {
+    try {
+      if (monthCalendar) {
+        const response = await getVouchersList(id, monthCalendar);
+        let voucherResponse = response.data.map((item) => {
+          let day = item.day.split("T")[0];
+          return {
+            id: item.id,
+            backgroundColor: "#258fc8",
+            title: "Bon: " + day,
+            start: day,
+          };
+        });
+        setVouchers(response.data);
+        setEvents(voucherResponse);
+      }
+    } catch (e) {
+      return null;
+    }
+  });
+
+  const renderFetchingGrid = () => {
     let cardFetching = [];
     for (let i = 0; i < 10; i++) {
       cardFetching.push(
@@ -121,32 +141,67 @@ const ClientCalendar = () => {
     return cardFetching;
   };
 
-  const handleDateSelect = (selectInfo) => {
-    let title = prompt("Please enter a new title for your event");
-    let calendarApi = selectInfo.view.calendar;
-
-    calendarApi.unselect(); // clear date selection
-
-    if (title) {
-      calendarApi.addEvent({
-        id: 3,
-        title,
-        start: selectInfo.startStr,
-        end: selectInfo.endStr,
-        allDay: selectInfo.allDay,
-      });
-    }
-  };
-
   const handleEventClick = (clickInfo) => {
     console.log(clickInfo.event);
     setVisible(true);
   };
 
-  const handleEvents = (events) => {
-    setEvents({
-      currentEvents: events,
+  const handleSaveVoucher = async () => {
+    setSaving(true);
+    try {
+      const response = await saveClientVoucher({
+        month: monthCalendar,
+        day: selectedDay,
+        client: client.id,
+        id: selectedVoucher.id,
+        total: selectedVoucher.total,
+        details: JSON.stringify(selectedVoucher.details),
+      });
+      let newVouchers = [];
+      if (selectedVoucher.id) {
+        newVouchers = vouchers.map((voucher) => {
+          if (voucher.id === selectedVoucher.id) {
+            return selectedVoucher;
+          } else {
+            return voucher;
+          }
+        });
+      } else {
+        let voucherResponse = response.data;
+        let newEvents = [...events];
+        newVouchers = [...vouchers];
+        newVouchers.push(voucherResponse);
+        newEvents.push({
+          id: voucherResponse.id,
+          backgroundColor: "#258fc8",
+          title: "Bon: " + voucherResponse.day.split("T")[0],
+          total: voucherResponse.total,
+          start: voucherResponse.day.split("T")[0],
+        });
+        setEvents(newEvents);
+      }
+      setVisible(false);
+      setSelectedVoucher(null);
+      setVouchers(newVouchers);
+      setSaving(false);
+      setSelectedDay(null);
+    } catch (e) {
+      setSaving(false);
+      return null;
+    }
+  };
+
+  const calculateVoucherTotal = (configuration) => {
+    let total = 0;
+    Object.keys(configuration).forEach((index) => {
+      let filtredProduct = products.filter(
+        (product) => product.id === parseInt(index)
+      );
+      if (filtredProduct.length > 0) {
+        total += configuration[index] * filtredProduct[0].price;
+      }
     });
+    return total;
   };
 
   return (
@@ -162,137 +217,197 @@ const ClientCalendar = () => {
         }
       />
       <div className="container">
-        {/* {clientsQuery.isFetching ? (
-          renderFetchingLines()
-        ) : clients.length ? ( */}
-        <Fragment>
-          <FullCalendar
-            plugins={[dayGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            locale={frLocale}
-            dateClick={(date) => {
-              let clickedMonth = date && date.dateStr.split("-")[1];
-              if (clickedMonth === month) {
-                setClickedDate(date.dateStr);
-                setVisible(true);
-              }
-            }}
-            editable={true}
-            selectMirror={true}
-            dayMaxEvents={true}
-            initialEvents={[
-              {
-                id: 1,
-                title: "Pas de bon",
-                start: "2023-09-16",
-                backgroundColor: "#D87318",
-                display: "background",
-              },
-              {
-                id: 3,
-                title: "Bon Absent",
-                start: "2023-09-07",
-                backgroundColor: "#EB5757",
-                display: "background",
-              },
-              {
-                id: 2,
-                backgroundColor: "#258fc8",
-                title: "Bon: " + todayStr,
-                start: "2023-09-11",
-              },
-            ]}
-            select={(selectInfo) => handleDateSelect(selectInfo)}
-            eventContent={(infos) => {
-              return (
-                <>
-                  <b>{infos.timeText}</b>
-                  <i>{infos.event.title}</i>
-                </>
-              );
-            }} // custom render function
-            eventClick={(selectInfo) => handleEventClick(selectInfo)}
-            eventsSet={(selectInfo) => handleEvents(selectInfo)} // called after events are initialized/added/changed/removed
-          />
-        </Fragment>
-        {/* ) : (
+        {clientQuery.isFetching ? (
+          renderFetchingGrid()
+        ) : client ? (
+          <Fragment>
+            <div className="calendar_header">
+              <div className="infos">
+                <div className="infos_title">{client.name}</div>
+                <div className="infos_sub_title">
+                  Nombre de bons: {events.length}
+                </div>
+              </div>
+              <div className="title">
+                {moment()
+                  .month(monthCalendar - 1)
+                  .format("MMMM")}{" "}
+                2023
+              </div>
+              <div className="actions">
+                <div className="action">Aujourd'hui</div>
+                <div className="set-actions">
+                  <div
+                    className={`action ${
+                      monthCalendar === 1 ? "disabled" : ""
+                    }`}
+                    onClick={() => {
+                      if (monthCalendar > 1) {
+                        let calendarApi = calendarRef.current.getApi();
+                        calendarApi.prev();
+                        setMonthCalendar(monthCalendar - 1);
+                      }
+                    }}
+                  >
+                    <i className="pi pi-chevron-left"></i>
+                  </div>
+                  <div
+                    className={`action ${
+                      monthCalendar === 12 ? "disabled" : ""
+                    }`}
+                    onClick={() => {
+                      if (monthCalendar < 12) {
+                        let calendarApi = calendarRef.current.getApi();
+                        calendarApi.next();
+                        setMonthCalendar(monthCalendar + 1);
+                      }
+                    }}
+                  >
+                    <i className="pi pi-chevron-right"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <FullCalendar
+              ref={calendarRef}
+              plugins={[dayGridPlugin, interactionPlugin]}
+              initialView="dayGridMonth"
+              headerToolbar={false}
+              locale={frLocale}
+              dateClick={(date) => {
+                let clickedMonth = date && date.dateStr.split("-")[1];
+                if (parseInt(clickedMonth) === monthCalendar) {
+                  let voucher =
+                    vouchers.filter(
+                      (item) => item.day.split("T")[0] === date.dateStr
+                    ).length > 0
+                      ? vouchers.filter(
+                          (item) => item.day.split("T")[0] === date.dateStr
+                        )[0]
+                      : {
+                          month: monthCalendar,
+                          day: date.dateStr,
+                          client: id,
+                          details: {},
+                          total: 0,
+                        };
+                  setSelectedVoucher({
+                    ...voucher,
+                    details: voucher.details.length
+                      ? JSON.parse(voucher.details)
+                      : {},
+                    day: voucher.day.split("T")[0],
+                  });
+                  setSelectedDay(date.dateStr);
+                  setVisible(true);
+                }
+              }}
+              editable={true}
+              selectMirror={true}
+              dayMaxEvents={true}
+              events={events}
+              eventContent={(infos) => {
+                return (
+                  <>
+                    <b>{infos.timeText}</b>
+                    <i>{infos.event.title}</i>
+                  </>
+                );
+              }}
+              eventClick={(selectInfo) => handleEventClick(selectInfo)}
+            />
+          </Fragment>
+        ) : (
           <div className="no_data">
             <div className="title">{"noDataFound"}</div>
-            <div className="subTitle">{"noClientsFound"}</div>
+            <div className="subTitle">{"noClientFound"}</div>
           </div>
-        )} */}
+        )}
       </div>
       <Dialog
-        header={`Inserer un bon pour la date: ${clickedDate}`}
+        header={`Inserer un bon pour la date: ${selectedDay}`}
         visible={visible}
-        position={"bottom"}
-        style={{ width: "50vw" }}
+        position={"right"}
+        style={{ width: "40vw" }}
         onHide={() => setVisible(false)}
         footer={
-          <div>
-            <Button
-              label="Annuler"
-              onClick={() => setVisible(false)}
-              className="p-button-text"
-            />
-            <Button
-              label="Enregistrer"
-              className="p-button-text"
-              onClick={() => setVisible(false)}
-              autoFocus
-            />
-          </div>
+          <Fragment>
+            <div className="total">
+              <span>TOTAL</span> {selectedVoucher && selectedVoucher.total} DH
+            </div>
+            <div>
+              <Button
+                label="Annuler"
+                onClick={() => {
+                  setSelectedVoucher(null);
+                  setVisible(false);
+                  setSelectedDay(null);
+                }}
+                className="p-button-text p-button-only-text"
+              />
+              <Button
+                label="Enregistrer"
+                className="p-button-text"
+                onClick={() => handleSaveVoucher()}
+                autoFocus
+                loading={saving}
+              />
+            </div>
+          </Fragment>
         }
         draggable={false}
         resizable={false}
       >
-        <div className="dialog-panel">
-          <div className="line">
-            <label>{"Pas de bon pour aujourd'hui "}</label>
-            <InputSwitch
-              checked={checked}
-              onChange={(e) => setChecked(e.value)}
-            />
+        {selectedDay && (
+          <div className="sidebar-form">
+            <div className="element td-header">
+              <div className="title">{"Designation"}</div>
+              <div className="tag">{"Prix.U"}</div>
+              <div className="input-tag">{"Quantité"}</div>
+              <div className="tag last-tag">{"Total"}</div>
+            </div>
+            <div>
+              {products.map((product, i) => {
+                return (
+                  <Fragment>
+                    <div className="element" key={i}>
+                      <div className="title">{product.name}</div>
+                      <div className="tag">
+                        <span>{product.price} dh</span>
+                      </div>
+                      <div className="input-tag">
+                        <input
+                          min="0"
+                          type="number"
+                          value={selectedVoucher.details[product.id]}
+                          onChange={(e) => {
+                            let newConfiguration = selectedVoucher.details;
+                            newConfiguration[product.id] = e.target.value;
+                            let total = calculateVoucherTotal(newConfiguration);
+                            setSelectedVoucher({
+                              ...selectedVoucher,
+                              total,
+                              details: newConfiguration,
+                            });
+                          }}
+                        />
+                      </div>
+                      <div className="tag last-tag">
+                        <span>
+                          {selectedVoucher.details[product.id]
+                            ? parseFloat(selectedVoucher.details[product.id]) *
+                              parseFloat(product.price)
+                            : 0}{" "}
+                          dh
+                        </span>
+                      </div>
+                    </div>
+                  </Fragment>
+                );
+              })}
+            </div>
           </div>
-        </div>
-        <div className="dialog-panel">
-          <h2>{"Detail du bon : "}</h2>
-          <div className="element td-header">
-            <div className="title">{"item.label"}</div>
-            <div className="tag">{"PU"}</div>
-            <div className="input-tag">{"PU"}</div>
-            <div className="tag last-tag">{"total"}</div>
-          </div>
-          <div>
-            {[
-              { label: "client AA", price: 10 },
-              { label: "client BB", price: 12 },
-              { label: "client CC", price: 13 },
-              { label: "client AA", price: 10 },
-              { label: "client BB", price: 12 },
-              { label: "client CC", price: 13 },
-              { label: "client AA", price: 10 },
-              { label: "client BB", price: 12 },
-              { label: "client CC", price: 13 },
-            ].map((item, i) => (
-              <Fragment>
-                <Divider />
-                <div className="element">
-                  <div className="title">{item.label}</div>
-                  <div className="tag">
-                    <span>{item.price}DH</span>
-                  </div>
-                  <div className="input-tag">
-                    <input />
-                  </div>
-                  <div className="tag last-tag">
-                    <span>{item.price}DH</span>
-                  </div>
-                </div>
-              </Fragment>
-            ))}
-          </div>
-        </div>
+        )}
       </Dialog>
     </div>
   );

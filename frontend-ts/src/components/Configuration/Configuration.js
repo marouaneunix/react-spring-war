@@ -1,32 +1,31 @@
 import React, { useState, Fragment } from "react";
 import { useQuery } from "react-query";
+import { ConfirmPopup, confirmPopup } from "primereact/confirmpopup";
 
-import { getClientsList } from "../../api";
+import { getProductLists, saveProduct, deleteProduct } from "../../api";
 
 import PageHeader from "../common/PageHeader";
 import "./Configuration.local.scss";
 
 const Configuration = () => {
-  const [productions, setProductions] = useState([
-    { label: "client AA", price: 10 },
-    { label: "client BB", price: 12 },
-    { label: "client CC", price: 13 },
-  ]);
-  // const [filter, setFilter] = useState({
-  //   keyWord: "",
-  //   pageSize: 10,
-  //   paginationPage: 1,
-  // });
+  const [products, setProducts] = useState([]);
+  const [editedProduct, setEditedProduct] = useState(null);
+  const [filter, setFilter] = useState({
+    tab: "actives",
+  });
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    price: 0,
+  });
 
-  // let clientsQuery = useQuery(["getClientsList", filter], async () => {
-  //   try {
-  //     const response = await getClientsList(filter);
-  //     setClients(response.data.data);
-  //     setNbrClients(response.data.nbResult ? response.data.nbResult : 0);
-  //   } catch (e) {
-  //     return null;
-  //   }
-  // });
+  let getProductsQuery = useQuery(["getProductLists"], async () => {
+    try {
+      const response = await getProductLists();
+      setProducts(response.data);
+    } catch (e) {
+      return null;
+    }
+  });
 
   const renderFetchingLines = () => {
     let cardFetching = [];
@@ -35,52 +34,6 @@ const Configuration = () => {
         <div key={i} className="line_fetching">
           <div className="infos">
             <div className="infos_header gradiant" />
-            <div className="infos_sub_header gradiant" />
-            <div className="infos_sub_header gradiant" />
-          </div>
-          <div className="state">
-            <div className="state_icon gradiant" />
-            <div className="state_label gradiant" />
-          </div>
-          <div className="progress">
-            <div className="progress_info">
-              <div className="gradiant" />
-              <div className="gradiant" />
-            </div>
-            <div
-              style={{
-                height: "28px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                backgroundColor: "transparent",
-              }}
-            >
-              <div className="progress_container">
-                <div className="progress_icon gradiant" />
-                <div className="progress_index gradiant" />
-              </div>
-            </div>
-          </div>
-          <div className="progress">
-            <div className="progress_info">
-              <div className="gradiant" />
-              <div className="gradiant" />
-            </div>
-            <div
-              style={{
-                height: "28px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                backgroundColor: "transparent",
-              }}
-            >
-              <div className="progress_container">
-                <div className="progress_icon gradiant" />
-                <div className="progress_index gradiant" />
-              </div>
-            </div>
           </div>
           <div className="tags">
             <div className="tag gradiant" />
@@ -96,6 +49,27 @@ const Configuration = () => {
     return cardFetching;
   };
 
+  const reject = () => {};
+
+  const handleDeleteProduct = async (id) => {
+    try {
+      const response = await deleteProduct(id);
+      // add new product to the list
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const handleSaveProduct = async () => {
+    try {
+      const response = await saveProduct(newProduct);
+      // add new product to the list
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const handleActivateProduct = () => {};
   return (
     <div className="page-content">
       <PageHeader
@@ -108,36 +82,171 @@ const Configuration = () => {
           />
         }
       />
-      <div className="container">
-        <div className="medium-11">
-          {/* {clientsQuery.isFetching ? (
-            renderFetchingLines()
-          ) : productions.length ? ( */}
-          <Fragment>
-            <div className="label">{"Gérer mes produits :"}</div>
-            <div className="list_items">
-              {productions.map((item, i) => (
-                <div className="line">
-                  <div className="title">{item.label}</div>
-                  <div className="tag">{item.price}DH</div>
-                  <div className="actions">
-                    <div className="action action-trush">
-                      <i className="pi pi-trash" />
-                    </div>
-                    <div className="action">
-                      <i className="pi pi-pencil" />
-                    </div>
-                  </div>
+      <div className="container content">
+        <div className="form">
+          <label>Ajouter un nouveau produit</label>
+          <div className="add-form">
+            <div className="inputgroup">
+              <label>
+                Nom du produit<span>*</span>
+              </label>
+              <input
+                value={newProduct.name}
+                placeholder="saisir le nom du client"
+                onChange={(e) => {
+                  setNewProduct({ ...newProduct, name: e.target.value });
+                }}
+              />
+            </div>
+            <div className="inputgroup">
+              <label>
+                Prix du produit<span>*</span>
+              </label>
+              <input
+                type="number"
+                value={newProduct.price}
+                placeholder="saisir le prix"
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, price: e.target.value })
+                }
+              />
+            </div>
+            <button
+              icon="pi pi-plus"
+              onClick={() => handleSaveProduct(newProduct)}
+            >
+              ajouter
+            </button>
+          </div>
+        </div>
+        <div className="list">
+          <div className="tabs">
+            {!getProductsQuery.isFetching &&
+              ["actives", "archives"].map((tab) => (
+                <div
+                  key={`tab-${tab}`}
+                  className={`tab ${filter.tab === tab ? "active" : ""}`}
+                  onClick={() => setFilter({ ...filter, tab })}
+                >
+                  {tab} |<span> {products[tab].length}</span>
                 </div>
               ))}
-            </div>
-          </Fragment>
-          {/* ) : (
-            <div className="no_data">
-              <div className="title">{"noDataFound"}</div>
-              <div className="subTitle">{"noClientsFound"}</div>
-            </div>
-          )} */}
+          </div>
+          <div className="medium-11 standard_list">
+            {getProductsQuery.isFetching ? (
+              renderFetchingLines()
+            ) : getProductsQuery.isFetched ? (
+              <Fragment>
+                {products[filter.tab].map((item, i) => (
+                  <div key={i} className="item">
+                    {editedProduct && editedProduct.id === item.id ? (
+                      <div className="horizental-form">
+                        <div className="inputgroup">
+                          <label>
+                            Nom du produit<span>*</span>
+                          </label>
+                          <input
+                            value={editedProduct.name}
+                            placeholder="saisir le nom du client"
+                            onChange={(e) => {
+                              setEditedProduct({
+                                ...editedProduct,
+                                name: e.target.value,
+                              });
+                            }}
+                          />
+                        </div>
+                        <div className="inputgroup">
+                          <label>
+                            Prix du produit<span>*</span>
+                          </label>
+                          <input
+                            value={editedProduct.price}
+                            placeholder="saisir le nom du societé"
+                            onChange={(e) => {
+                              setEditedProduct({
+                                ...editedProduct,
+                                price: e.target.value,
+                              });
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <button
+                            icon="pi pi-plus"
+                            onClick={() => {
+                              handleSaveProduct(editedProduct);
+                              setEditedProduct(null);
+                            }}
+                          >
+                            <i className="pi pi-check" />
+                          </button>
+                          <button
+                            className="default"
+                            onClick={() => setEditedProduct(null)}
+                          >
+                            <i className="pi pi-times" />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="item_infos">
+                          <div className="item_infos_header item_infos_only">
+                            {item.name}
+                          </div>
+                        </div>
+                        <div className="item_tags">
+                          <div className="tag tag-success">
+                            <span>{item.price}</span> {"DH"}
+                          </div>
+                        </div>
+                        <div className="item_actions">
+                          {item.archivedAt ? (
+                            <div
+                              className="action"
+                              onClick={() => handleActivateProduct(item)}
+                            >
+                              <i className="pi pi-replay" />
+                            </div>
+                          ) : (
+                            <Fragment>
+                              <div
+                                className="action"
+                                onClick={() => setEditedProduct(item)}
+                              >
+                                <i className="pi pi-pencil" />
+                              </div>
+                              <div
+                                className="action"
+                                onClick={(event) => {
+                                  confirmPopup({
+                                    target: event.currentTarget,
+                                    message: "Sure d'archiver ce produit?",
+                                    icon: "pi pi-exclamation-triangle",
+                                    accept: () => handleDeleteProduct(item.id),
+                                    reject: null,
+                                  });
+                                }}
+                              >
+                                <i className="pi pi-trash" />
+                              </div>
+                            </Fragment>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    <ConfirmPopup />
+                  </div>
+                ))}
+              </Fragment>
+            ) : (
+              <div className="no_data">
+                <div className="title">{"noDataFound"}</div>
+                <div className="subTitle">{"noClientsFound"}</div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
