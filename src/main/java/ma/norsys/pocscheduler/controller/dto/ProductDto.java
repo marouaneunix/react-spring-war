@@ -12,19 +12,15 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class VoucherDto {
+public class ProductDto {
 
     private Long id;
-    @NotBlank
-    private float total;
-    @NotBlank
-    private String details;
-    @NotBlank
-    private Date day;
-    @NotBlank
-    private int month;
-    @NotBlank
-    private Long client;
 
+    @NotBlank
+    private String name;
 
+    @NotBlank
+    private Float price;
+
+    private Date deletedAt;
 }

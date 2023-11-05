@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ma.norsys.pocscheduler.domain.Client;
 
 import java.util.Date;
 
@@ -12,19 +13,13 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class VoucherDto {
+public class ClientSurplusDto {
 
     private Long id;
-    @NotBlank
-    private float total;
-    @NotBlank
+
+    private Date generatedAt;
+
     private String details;
-    @NotBlank
-    private Date day;
-    @NotBlank
-    private int month;
-    @NotBlank
+
     private Long client;
-
-
 }

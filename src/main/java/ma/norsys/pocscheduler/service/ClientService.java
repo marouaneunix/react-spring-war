@@ -2,18 +2,24 @@ package ma.norsys.pocscheduler.service;
 
 
 import lombok.RequiredArgsConstructor;
+import ma.norsys.pocscheduler.controller.dto.VoucherDto;
 import ma.norsys.pocscheduler.domain.Client;
 import ma.norsys.pocscheduler.controller.dto.ClientDto;
+import ma.norsys.pocscheduler.domain.Voucher;
 import ma.norsys.pocscheduler.repository.ClientRepository;
+import ma.norsys.pocscheduler.repository.VoucherRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ClientService {
 
-        private final ClientRepository clientRepository;
+    private final ClientRepository clientRepository;
+
+    private final VoucherRepository voucherRepository;
 
         public Map<String, ArrayList<ClientDto>> findAll() {
             Map<String, ArrayList<ClientDto>> articleMapOne;
@@ -21,7 +27,8 @@ public class ClientService {
             articleMapOne.put("actives", new ArrayList<>());
             articleMapOne.put("archives", new ArrayList<>());
             clientRepository.findAll().forEach(client -> {
-                ClientDto clientDto = new ClientDto(client.getId(), client.getName(), client.getSociety(), client.getIce(), client.getArchivedAt());
+                List<Voucher> vouchers = voucherRepository.findByClientAndMonth(client, (Calendar.getInstance()).get(Calendar.MONTH));
+                ClientDto clientDto = new ClientDto(client.getId(), client.getName(), client.getSociety(), client.getIce(), vouchers.size(), client.getArchivedAt());
                 if(client.getArchivedAt() == null) {
                     ArrayList<ClientDto> actives = articleMapOne.get("actives");
                     actives.add(clientDto);
@@ -35,9 +42,17 @@ public class ClientService {
             return articleMapOne;
         }
 
+        public ClientDto findById(Long id) {
+            return  clientRepository.findById(id).map(client -> {
+                List<Voucher> vouchers = voucherRepository.findByClientAndMonth(client, (Calendar.getInstance()).get(Calendar.MONTH));
+                return  new ClientDto(client.getId(), client.getName(), client.getSociety(), client.getIce(), vouchers.size(), client.getArchivedAt());
+            }).orElse(null);
+
+        }
+
     public ClientDto saveClient(ClientDto clientDto) {
         Client client = null;
-        if(clientDto.getIce() != null) {
+        if(clientDto.getId() != null) {
             Optional<Client> clientOptional = clientRepository.findById(clientDto.getId());
             client = clientOptional.get();
         } else {

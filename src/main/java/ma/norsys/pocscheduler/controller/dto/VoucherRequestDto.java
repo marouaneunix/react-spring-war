@@ -6,25 +6,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class VoucherDto {
+public class VoucherRequestDto {
 
-    private Long id;
-    @NotBlank
-    private float total;
-    @NotBlank
-    private String details;
-    @NotBlank
-    private Date day;
     @NotBlank
     private int month;
+
     @NotBlank
     private Long client;
-
-
 }

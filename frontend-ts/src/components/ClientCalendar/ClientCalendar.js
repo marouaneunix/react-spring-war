@@ -30,7 +30,6 @@ const ClientCalendar = () => {
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [nbrVoucher, setNbrVoucher] = useState(0);
   const [visible, setVisible] = useState(false);
   const [monthCalendar, setMonthCalendar] = useState(moment().month() + 1);
 
@@ -142,7 +141,15 @@ const ClientCalendar = () => {
   };
 
   const handleEventClick = (clickInfo) => {
-    console.log(clickInfo.event);
+    let voucher = vouchers.filter(
+      (item) => item.id === parseInt(clickInfo.event.id)
+    )[0];
+    setSelectedVoucher({
+      ...voucher,
+      details: voucher.details.length ? JSON.parse(voucher.details) : {},
+      day: voucher.day.split("T")[0],
+    });
+    setSelectedDay(voucher.day.split("T")[0]);
     setVisible(true);
   };
 
@@ -232,10 +239,17 @@ const ClientCalendar = () => {
                 {moment()
                   .month(monthCalendar - 1)
                   .format("MMMM")}{" "}
-                2023
+                {moment().year()}
               </div>
               <div className="actions">
-                <div className="action">Aujourd'hui</div>
+                <div
+                  className="action"
+                  onClick={() => {
+                    setMonthCalendar(moment().month() + 1);
+                  }}
+                >
+                  Aujourd'hui
+                </div>
                 <div className="set-actions">
                   <div
                     className={`action ${

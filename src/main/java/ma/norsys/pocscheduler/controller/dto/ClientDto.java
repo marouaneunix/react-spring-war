@@ -21,8 +21,19 @@ public class ClientDto {
 
     private String society;
 
+    private int nbrVoucher;
+
     @NotBlank
     private String ice;
 
     private Date archivedAt;
+
+    public ClientDto(Long id, String name, String society, String ice, int nbrVoucher, Date archivedAt) {
+        this.id = id;
+        this.name = name;
+        this.society = society;
+        this.ice = ice;
+        this.nbrVoucher = nbrVoucher;
+        this.archivedAt = archivedAt;
+    }
 }

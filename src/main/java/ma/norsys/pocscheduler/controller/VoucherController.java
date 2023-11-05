@@ -1,8 +1,9 @@
-package ma.washmenara.pocscheduler.controller;
+package ma.norsys.pocscheduler.controller;
 
 import lombok.RequiredArgsConstructor;
-import ma.washmenara.pocscheduler.controller.dto.VoucherDto;
-import ma.washmenara.pocscheduler.service.VoucherService;
+import ma.norsys.pocscheduler.controller.dto.VoucherDto;
+import ma.norsys.pocscheduler.controller.dto.VoucherRequestDto;
+import ma.norsys.pocscheduler.service.VoucherService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,12 +17,12 @@ public class VoucherController {
     private final VoucherService voucherService;
 
     @GetMapping
-    public List<VoucherDto> findAll() {
-        return voucherService.findAll();
+    public List<VoucherDto> findByMonth(VoucherRequestDto voucherRequestDto) {
+        return voucherService.findByClientAndMonth(voucherRequestDto);
     }
 
-//    @PostMapping
-//    public void saveTask(@RequestBody VoucherDto voucherDto){
-//        voucherService.saveVoucher();
-//    }
+    @PostMapping
+    public VoucherDto saveVoucher(@RequestBody VoucherDto voucherDto){
+        return  voucherService.saveVoucher(voucherDto);
+    }
 }

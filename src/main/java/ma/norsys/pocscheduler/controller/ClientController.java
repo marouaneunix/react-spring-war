@@ -29,6 +29,11 @@ public class ClientController {
         return clientService.saveClient(clientDto);
     }
 
+    @GetMapping("/{id}")
+    public ClientDto findClient(@PathVariable("id") long id) {
+        return clientService.findById(id);
+    }
+
     @PostMapping("/archive/{id}")
     public Long archiveClient(@PathVariable("id") long id){
         return clientService.archiveClient(id);

@@ -13,21 +13,15 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Voucher {
+public class ClientSurplus {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     private Long id;
 
+    private Date generatedAt;
+
     private String details;
-
-    private float total;
-
-    private Date day;
-
-    private int month;
-
-    private Date createdAt;
 
     @ManyToOne
     private Client client;
