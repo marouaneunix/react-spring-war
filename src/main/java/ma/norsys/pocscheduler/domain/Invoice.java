@@ -13,21 +13,26 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Voucher {
+public class Invoice {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     private Long id;
 
+    private Date generatedAt;
+
+    @Column(columnDefinition="text", length=10485760)
     private String details;
 
-    private Date day;
+    @Column(columnDefinition="text", length=10485760)
+    private String surplus;
 
-    private int month;
+    @Column(columnDefinition="text", length=10485760)
+    private String prices;
 
-    private int year;
+    private String month;
 
-    private Date createdAt;
+    private String year;
 
     @ManyToOne
     private Client client;

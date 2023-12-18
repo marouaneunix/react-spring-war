@@ -16,8 +16,6 @@ public class VoucherDto {
 
     private Long id;
     @NotBlank
-    private float total;
-    @NotBlank
     private String details;
     @NotBlank
     private Date day;

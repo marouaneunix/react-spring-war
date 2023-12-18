@@ -96,8 +96,9 @@
       }
     }
     .standard_list {
-      height: 600px;
+      height: 400px;
       overflow: scroll;
+      padding-bottom: 20px;
       .line_fetching {
         display: flex;
         background: #FFFFFF;

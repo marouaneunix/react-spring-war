@@ -27,7 +27,7 @@ public class ClientService {
             articleMapOne.put("actives", new ArrayList<>());
             articleMapOne.put("archives", new ArrayList<>());
             clientRepository.findAll().forEach(client -> {
-                List<Voucher> vouchers = voucherRepository.findByClientAndMonth(client, (Calendar.getInstance()).get(Calendar.MONTH));
+                List<Voucher> vouchers = voucherRepository.findByClientAndMonthAndYear(client, (Calendar.getInstance()).get(Calendar.MONTH), String.valueOf((Calendar.getInstance()).get(Calendar.YEAR)));
                 ClientDto clientDto = new ClientDto(client.getId(), client.getName(), client.getSociety(), client.getIce(), vouchers.size(), client.getArchivedAt());
                 if(client.getArchivedAt() == null) {
                     ArrayList<ClientDto> actives = articleMapOne.get("actives");
@@ -44,7 +44,7 @@ public class ClientService {
 
         public ClientDto findById(Long id) {
             return  clientRepository.findById(id).map(client -> {
-                List<Voucher> vouchers = voucherRepository.findByClientAndMonth(client, (Calendar.getInstance()).get(Calendar.MONTH));
+                List<Voucher> vouchers = voucherRepository.findByClientAndMonthAndYear(client, (Calendar.getInstance()).get(Calendar.MONTH), String.valueOf((Calendar.getInstance()).get(Calendar.YEAR)));
                 return  new ClientDto(client.getId(), client.getName(), client.getSociety(), client.getIce(), vouchers.size(), client.getArchivedAt());
             }).orElse(null);
 

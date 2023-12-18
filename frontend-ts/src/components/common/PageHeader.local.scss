@@ -5,8 +5,11 @@
   height: 80px;
   padding: 10px 40px 10px 20px;
   margin: 0px 50px;
-  background: rgb(42,142,199, 0.1);
-
+  background: #eaf4f9;
+  position: fixed;
+  z-index: 4;
+  width: 93%;
+  
   .p-button {
     color: #ffffff;
     background: rgb(42, 142, 199, 0.9)!important;

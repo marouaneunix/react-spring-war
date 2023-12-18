@@ -24,11 +24,10 @@ public class VoucherService {
 
     public List<VoucherDto> findByClientAndMonth(VoucherRequestDto dto) {
         Optional<Client> clientOptional = clientRepository.findById(dto.getClient());
-        return clientOptional.map(client -> voucherRepository.findByClientAndMonth(client, dto.getMonth())
+        return clientOptional.map(client -> voucherRepository.findByClientAndMonthAndYear(client, dto.getMonth(), dto.getYear())
                 .stream().map(voucher ->
                         new VoucherDto(
                                 voucher.getId(),
-                                voucher.getTotal(),
                                 voucher.getDetails(),
                                 voucher.getDay(),
                                 voucher.getMonth(),
@@ -49,7 +48,6 @@ public class VoucherService {
         }
         voucher.setDay(voucherDto.getDay());
         voucher.setMonth(voucherDto.getMonth());
-        voucher.setTotal(voucherDto.getTotal());
         voucher.setDetails(voucherDto.getDetails());
         voucher.setCreatedAt(new Date());
         voucherRepository.save(voucher);

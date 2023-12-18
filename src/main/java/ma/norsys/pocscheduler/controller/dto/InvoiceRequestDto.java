@@ -10,10 +10,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class VoucherRequestDto {
+public class InvoiceRequestDto {
 
     @NotBlank
-    private int month;
+    private String month;
 
     @NotBlank
     private String year;

@@ -6,18 +6,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class VoucherRequestDto {
+public class QuantityByDayDto {
 
+    private int day;
     @NotBlank
-    private int month;
+    private int quantity;
 
-    @NotBlank
-    private String year;
-
-    @NotBlank
-    private Long client;
 }

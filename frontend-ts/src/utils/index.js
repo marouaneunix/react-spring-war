@@ -11,6 +11,11 @@ export const toWords = new ToWords({
       name: "Dihram",
       plural: "Dihrams",
       symbol: "DH",
+      fractionalUnit: {
+        name: "Centime",
+        plural: "Centimes",
+        symbol: "",
+      },
     },
   },
 });
