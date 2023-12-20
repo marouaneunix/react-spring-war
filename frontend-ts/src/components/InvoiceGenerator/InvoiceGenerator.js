@@ -119,10 +119,11 @@ const InvoiceGenerator = () => {
 
   const handleGenerateClientInvoice = async () => {
     let productDetailsList = [];
-    Object.keys(editedMatrix).forEach((key) => {
+    let details = JSON.parse(invoice.details);
+    Object.keys(details).forEach((key) => {
       let quantityByDays = [];
-      Object.keys(editedMatrix[key]).forEach((day) =>
-        quantityByDays.push({ day, quantity: editedMatrix[key][day] })
+      Object.keys(details[key]).forEach((day) =>
+        quantityByDays.push({ day, quantity: details[key][day] })
       );
       productDetailsList.push({
         productId: key,
@@ -131,7 +132,7 @@ const InvoiceGenerator = () => {
     });
     let pricesLocal = {};
     let surplusLocal = {};
-    Object.keys(editedMatrix).forEach((key) => {
+    Object.keys(details).forEach((key) => {
       let product = products.filter(
         (element) => element.id === parseInt(key)
       )[0];
@@ -146,11 +147,10 @@ const InvoiceGenerator = () => {
         ...invoice,
         prices: JSON.stringify(pricesLocal),
         surplus: JSON.stringify(surplusLocal),
-        details: JSON.stringify(editedMatrix),
+        details: JSON.stringify(details),
         productDetailsList,
       });
       setInvoice(response.data);
-      setEditedMatrix(null);
       setSaving(false);
     } catch (e) {
       return null;
@@ -370,12 +370,12 @@ const InvoiceGenerator = () => {
             <div className="set-actions">
               <div
                 className={`action ${
-                  filter.year === 2022 && filter.month === 1 ? "disabled" : ""
+                  filter.year === 2023 && filter.month === 1 ? "disabled" : ""
                 }`}
                 onClick={() => {
                   if (filter.month > 1) {
                     setFilter({ ...filter, month: filter.month - 1 });
-                  } else if (filter.year > 2022) {
+                  } else if (filter.year > 2023) {
                     setFilter({ ...filter, month: 12, year: filter.year - 1 });
                   }
                 }}

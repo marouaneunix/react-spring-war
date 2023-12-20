@@ -32,6 +32,10 @@ const ClientCalendar = () => {
   const [saving, setSaving] = useState(false);
   const [visible, setVisible] = useState(false);
   const [monthCalendar, setMonthCalendar] = useState(moment().month() + 1);
+  const [filter, setFilter] = useState({
+    month: moment().month() + 1,
+    year: moment().year(),
+  });
 
   let productsQuery = useQuery(["getProductLists"], async () => {
     try {
@@ -51,10 +55,10 @@ const ClientCalendar = () => {
     }
   });
 
-  let vouchersQuery = useQuery(["getVouchersList", monthCalendar], async () => {
+  let vouchersQuery = useQuery(["getVouchersList", filter], async () => {
     try {
-      if (monthCalendar) {
-        const response = await getVouchersList(id, monthCalendar);
+      if (filter.year && filter.month) {
+        const response = await getVouchersList(id, filter.month, filter.year);
         let voucherResponse = response.data.map((item) => {
           let day = item.day.split("T")[0];
           return {
@@ -157,7 +161,7 @@ const ClientCalendar = () => {
     setSaving(true);
     try {
       const response = await saveClientVoucher({
-        month: monthCalendar,
+        ...filter,
         day: selectedDay,
         client: client.id,
         id: selectedVoucher.id,
@@ -237,15 +241,15 @@ const ClientCalendar = () => {
               </div>
               <div className="title">
                 {moment()
-                  .month(monthCalendar - 1)
+                  .month(filter.month - 1)
                   .format("MMMM")}{" "}
-                {moment().year()}
+                {filter.year}
               </div>
               <div className="actions">
                 <div
                   className="action"
                   onClick={() => {
-                    setMonthCalendar(moment().month() + 1);
+                    setFilter({ ...filter, month: moment().month() + 1 });
                   }}
                 >
                   Aujourd'hui
@@ -253,13 +257,19 @@ const ClientCalendar = () => {
                 <div className="set-actions">
                   <div
                     className={`action ${
-                      monthCalendar === 1 ? "disabled" : ""
+                      filter.year === 2023 && filter.month === 1
+                        ? "disabled"
+                        : ""
                     }`}
                     onClick={() => {
-                      if (monthCalendar > 1) {
-                        let calendarApi = calendarRef.current.getApi();
-                        calendarApi.prev();
-                        setMonthCalendar(monthCalendar - 1);
+                      if (filter.month > 1) {
+                        setFilter({ ...filter, month: filter.month - 1 });
+                      } else if (filter.year > 2023) {
+                        setFilter({
+                          ...filter,
+                          month: 12,
+                          year: filter.year - 1,
+                        });
                       }
                     }}
                   >
@@ -267,13 +277,19 @@ const ClientCalendar = () => {
                   </div>
                   <div
                     className={`action ${
-                      monthCalendar === 12 ? "disabled" : ""
+                      filter.year === moment().year() && filter.month === 12
+                        ? "disabled"
+                        : ""
                     }`}
                     onClick={() => {
-                      if (monthCalendar < 12) {
-                        let calendarApi = calendarRef.current.getApi();
-                        calendarApi.next();
-                        setMonthCalendar(monthCalendar + 1);
+                      if (filter.month < 12) {
+                        setFilter({ ...filter, month: filter.month + 1 });
+                      } else if (filter.year < moment().year()) {
+                        setFilter({
+                          ...filter,
+                          month: 1,
+                          year: filter.year + 1,
+                        });
                       }
                     }}
                   >
