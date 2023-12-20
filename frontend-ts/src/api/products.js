@@ -13,11 +13,10 @@ export const saveProduct = (product) => {
   return axios.post(requestUrl, product);
 };
 
-export const deleteProduct = (id) => {
-  const requestUrl = `http://localhost:8080/api/product/remove`;
+export const archiveProduct = (id) => {
+  return axios.post(`http://localhost:8080/api/product/archive/${id}`);
+};
 
-  let formData = new FormData();
-  formData.append("id", id);
-
-  return axios.post(requestUrl, formData);
+export const activateProduct = (id) => {
+  return axios.post(`http://localhost:8080/api/product/activate/${id}`);
 };

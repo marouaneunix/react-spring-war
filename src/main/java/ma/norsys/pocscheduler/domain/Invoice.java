@@ -34,6 +34,8 @@ public class Invoice {
 
     private String year;
 
+    private String code;
+
     @ManyToOne
     private Client client;
 }

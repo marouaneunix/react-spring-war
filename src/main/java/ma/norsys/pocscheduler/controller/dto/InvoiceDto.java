@@ -31,14 +31,19 @@ public class InvoiceDto {
     @NotBlank
     private ClientDto client;
 
+    private String code;
 
-    public InvoiceDto(Long id, String details, String prices, String surplus, String month, String year, ClientDto clientDto) {
+    private Date generatedAt;
+
+
+    public InvoiceDto(Long id, String details, String prices, String surplus, String month, String year, Date generatedAt, ClientDto clientDto) {
         this.setId(id);
         this.setDetails(details);
         this.setPrices(prices);
         this.setSurplus(surplus);
         this.setMonth(month);
         this.setClient(clientDto);
+        this.setGeneratedAt(generatedAt);
         this.setYear(year);
 
     }

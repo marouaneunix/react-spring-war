@@ -29,4 +29,16 @@ public class InvoiceController {
     public InvoiceDto saveClientInvoice(@RequestBody InvoiceDto invoiceDto) throws ParseException, JsonProcessingException {
         return  invoiceService.saveClientInvoice(invoiceDto);
     }
+
+    @CrossOrigin("*")
+    @PostMapping("/details")
+    public InvoiceDto saveClientInvoiceDetails(@RequestBody InvoiceDto invoiceDto) throws ParseException, JsonProcessingException {
+        return  invoiceService.saveClientInvoiceDetails(invoiceDto);
+    }
+
+    @CrossOrigin("*")
+    @PostMapping("/settings")
+    public InvoiceDto saveClientInvoiceSettings(@RequestBody InvoiceDto invoiceDto) throws ParseException, JsonProcessingException {
+        return  invoiceService.saveClientInvoiceSettings(invoiceDto);
+    }
 }

@@ -2,7 +2,6 @@ package ma.norsys.pocscheduler.service;
 
 
 import lombok.RequiredArgsConstructor;
-import ma.norsys.pocscheduler.controller.dto.VoucherDto;
 import ma.norsys.pocscheduler.domain.Client;
 import ma.norsys.pocscheduler.controller.dto.ClientDto;
 import ma.norsys.pocscheduler.domain.Voucher;
@@ -11,7 +10,6 @@ import ma.norsys.pocscheduler.repository.VoucherRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

@@ -50,6 +50,7 @@ public class InvoiceService {
                     invoice.getSurplus(),
                     invoice.getMonth(),
                     invoice.getYear(),
+                    invoice.getGeneratedAt(),
                     clientDto
                 );
             } else {
@@ -94,21 +95,37 @@ public class InvoiceService {
     public InvoiceDto saveClientInvoice(InvoiceDto dto) throws ParseException, JsonProcessingException {
         Invoice invoice = null;
         Optional<Client> clientOptional = clientRepository.findById(dto.getClient().getId());
+        List<Invoice> invoices = invoiceRepository.findByYear(dto.getYear());
+        String code = (invoices.size() + 1)+"/"+dto.getYear();
+        invoice = new Invoice(null, new Date(), dto.getDetails(), dto.getSurplus(), dto.getPrices(), dto.getMonth(), dto.getYear(), code, clientOptional.get());
+        invoiceRepository.save(invoice);
+        dto.setId(invoice.getId());
+        dto.setCode(invoice.getCode());
+        dto.setGeneratedAt(invoice.getGeneratedAt());
+        return dto;
+    }
+    public InvoiceDto saveClientInvoiceSettings(InvoiceDto dto) {
+        Optional<Invoice> invoiceOptional = invoiceRepository.findById(dto.getId());
+        Invoice invoice = invoiceOptional.get();
+        invoice.setSurplus(dto.getSurplus());
+        invoice.setPrices(dto.getPrices());
+        invoiceRepository.save(invoice);
+
+        return dto;
+    }
+    public InvoiceDto saveClientInvoiceDetails(InvoiceDto dto) throws ParseException, JsonProcessingException {
+        Invoice invoice = null;
+        Optional<Client> clientOptional = clientRepository.findById(dto.getClient().getId());
 
         if(dto.getId() != null) {
             List<Invoice> invoices = invoiceRepository.findByClientAndMonthAndYear(clientOptional.get(), dto.getMonth(), dto.getYear());
             invoice = invoices.get(0);
             invoice.setDetails(dto.getDetails());
             invoiceRepository.save(invoice);
-        } else {
-            invoice = new Invoice(null, new Date(), dto.getDetails(), dto.getSurplus(), dto.getPrices(), dto.getMonth(), dto.getYear(), clientOptional.get());
-            invoiceRepository.save(invoice);
-            dto.setId(invoice.getId());
         }
         this.updateInvoiceVouchers(dto.getProductDetailsList(), clientOptional.get(), dto.getMonth(), dto.getYear());
         return dto;
     }
-
     private void updateInvoiceVouchers(List<ProductDetailsDto> details, Client client, String month, String year) throws ParseException, JsonProcessingException {
         Map<Integer, Map<Integer, Integer>> vouchers = new HashMap<>();
         for(Integer i=1;i<=31;i++){
@@ -145,3 +162,4 @@ public class InvoiceService {
         }
     }
 }
+

@@ -10,8 +10,11 @@ import java.util.List;
 
 public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
-
     @Query("SELECT v FROM Invoice v where v.client = :client and v.month = :month and v.year = :year")
     List<Invoice> findByClientAndMonthAndYear(@Param("client") Client client, @Param("month") String month, @Param("year") String year);
+
+    @Query("SELECT v FROM Invoice v where v.year = :year")
+    List<Invoice> findByYear(@Param("year") String year);
+
 
 }

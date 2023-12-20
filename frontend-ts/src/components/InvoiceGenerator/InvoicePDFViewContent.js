@@ -6,7 +6,13 @@ import moment from "moment";
 
 import "./InvoiceGenerator.local.scss";
 
-const InvoicePDFViewContent = ({ invoice, products, visible, setVisible }) => {
+const InvoicePDFViewContent = ({
+  invoice,
+  products,
+  visible,
+  setVisible,
+  surplus,
+}) => {
   const { toPDF, targetRef } = usePDF({ filename: "page.pdf" });
   const [total, setTotal] = useState(0);
   const [lines, setLines] = useState([]);
@@ -27,8 +33,12 @@ const InvoicePDFViewContent = ({ invoice, products, visible, setVisible }) => {
       for (let i = 1; i < 32; i++) {
         count += detailsLocal[key][i] ? parseInt(detailsLocal[key][i]) : 0;
       }
-      result.push({ name: product.name, value: count, price: product.price });
-      tot += count * product.price;
+      let price = invoice.id
+        ? parseFloat(invoice.surplus[key] ?? 0) +
+          parseFloat(invoice.prices[key] ?? 0)
+        : parseFloat(surplus[key] ?? 0) + parseFloat(product.price);
+      result.push({ name: product.name, value: count, price });
+      tot += count * price;
     });
     setTotal(tot);
     setLines(result);
@@ -68,7 +78,7 @@ const InvoicePDFViewContent = ({ invoice, products, visible, setVisible }) => {
           <div className="title">Facture</div>
           <div className="info_set">
             <label>Numero:</label>
-            <span>{invoice && invoice.id ? invoice.id : "----"}</span>
+            <span>{invoice && invoice.code ? invoice.code : "----"}</span>
           </div>
           <div className="info_set">
             <label>Client:</label>
@@ -90,7 +100,11 @@ const InvoicePDFViewContent = ({ invoice, products, visible, setVisible }) => {
           </div>
           <div className="info_set">
             <label>Date:</label>
-            <span>{moment().format("DD-MM-YYYY")}</span>
+            <span>
+              {invoice.generatedAt
+                ? moment(invoice.generatedAt).format("DD-MM-YYYY")
+                : "--------"}
+            </span>
           </div>
         </div>
       </div>

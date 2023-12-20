@@ -2,12 +2,16 @@ import React, { Fragment, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "react-query";
 import { Dropdown } from "primereact/dropdown";
+import { Dialog } from "primereact/dialog";
+import { Button } from "primereact/button";
 import moment from "moment";
 
 import {
   getInvoice,
   getProductLists,
   saveClientInvoice,
+  saveInvoiceDetails,
+  saveInvoiceSetting,
   getClientConfiguration,
 } from "../../api";
 
@@ -19,8 +23,10 @@ const InvoiceGenerator = () => {
   let { id } = useParams();
   const [invoice, setInvoice] = useState(null);
   const [products, setProducts] = useState([]);
+  const [activesProducts, setActivesProducts] = useState([]);
   const [surplus, setSurplus] = useState([]);
-  const [visible, setVisible] = useState(false);
+  const [pdfViewerVisible, setPdfViewerVisible] = useState(false);
+  const [configSideBarVisible, setConfigSideBarVisible] = useState(false);
   const [addedLine, setAddedLine] = useState({ details: {} });
   const [editedMatrix, setEditedMatrix] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -32,7 +38,12 @@ const InvoiceGenerator = () => {
   let productsQuery = useQuery(["getProductLists"], async () => {
     try {
       const response = await getProductLists();
-      setProducts(response.data ? response.data.actives : []);
+      setProducts(
+        response.data
+          ? [...response.data.actives, ...response.data.archives]
+          : []
+      );
+      setActivesProducts(response.data ? response.data.actives : []);
     } catch (e) {
       return null;
     }
@@ -42,7 +53,13 @@ const InvoiceGenerator = () => {
     try {
       if (filter.month) {
         const response = await getInvoice(id, filter.month, filter.year);
-        setInvoice(response.data);
+        setInvoice({
+          ...response.data,
+          surplus: response.data.surplus
+            ? JSON.parse(response.data.surplus)
+            : {},
+          prices: response.data.prices ? JSON.parse(response.data.prices) : {},
+        });
       }
     } catch (e) {
       return null;
@@ -63,7 +80,15 @@ const InvoiceGenerator = () => {
     ths.push(<th>{i}</th>);
   }
 
-  const handleSaveClientInvoice = async () => {
+  const handleSaveInvoiceConfiguration = async () => {
+    try {
+      await saveInvoiceSetting(invoice);
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const handleSaveInvoiceDetails = async () => {
     let productDetailsList = [];
     Object.keys(editedMatrix).forEach((key) => {
       let quantityByDays = [];
@@ -77,8 +102,50 @@ const InvoiceGenerator = () => {
     });
     setSaving(true);
     try {
+      const response = await saveInvoiceDetails({
+        ...invoice,
+        prices: null,
+        surplus: null,
+        details: JSON.stringify(editedMatrix),
+        productDetailsList,
+      });
+      setInvoice(response.data);
+      setEditedMatrix(null);
+      setSaving(false);
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const handleGenerateClientInvoice = async () => {
+    let productDetailsList = [];
+    Object.keys(editedMatrix).forEach((key) => {
+      let quantityByDays = [];
+      Object.keys(editedMatrix[key]).forEach((day) =>
+        quantityByDays.push({ day, quantity: editedMatrix[key][day] })
+      );
+      productDetailsList.push({
+        productId: key,
+        quantityByDays,
+      });
+    });
+    let pricesLocal = {};
+    let surplusLocal = {};
+    Object.keys(editedMatrix).forEach((key) => {
+      let product = products.filter(
+        (element) => element.id === parseInt(key)
+      )[0];
+      pricesLocal[key] = product.price;
+      if (surplus[key]) {
+        surplusLocal[key] = surplus[key];
+      }
+    });
+    setSaving(true);
+    try {
       const response = await saveClientInvoice({
         ...invoice,
+        prices: JSON.stringify(pricesLocal),
+        surplus: JSON.stringify(surplusLocal),
         details: JSON.stringify(editedMatrix),
         productDetailsList,
       });
@@ -131,7 +198,7 @@ const InvoiceGenerator = () => {
   const renderAddTDsMatrix = () => {
     let tds = [];
     let total = 0;
-    let leftProducts = products
+    let leftProducts = activesProducts
       .filter((item) => !Object.keys(editedMatrix).includes(item.id + ""))
       .map((item) => {
         return {
@@ -309,7 +376,6 @@ const InvoiceGenerator = () => {
                   if (filter.month > 1) {
                     setFilter({ ...filter, month: filter.month - 1 });
                   } else if (filter.year > 2022) {
-                    console.log("ok");
                     setFilter({ ...filter, month: 12, year: filter.year - 1 });
                   }
                 }}
@@ -341,7 +407,7 @@ const InvoiceGenerator = () => {
               <div
                 className="action"
                 style={{ marginRight: "2px" }}
-                onClick={() => handleSaveClientInvoice()}
+                onClick={() => handleSaveInvoiceDetails()}
               >
                 <i className="pi pi-fw pi-check" />
               </div>
@@ -351,10 +417,37 @@ const InvoiceGenerator = () => {
             </Fragment>
           ) : (
             <Fragment>
+              {invoice.id ? (
+                <div
+                  className="action"
+                  style={{
+                    marginRight: "2px",
+                    cursor: "default",
+                    opacity: 0.5,
+                  }}
+                >
+                  <i className="pi pi-fw pi-lock" />
+                </div>
+              ) : (
+                <div
+                  className="action"
+                  style={{ marginRight: "2px" }}
+                  onClick={() => handleGenerateClientInvoice()}
+                >
+                  <i className="pi pi-fw pi-lock-open" />
+                </div>
+              )}
               <div
                 className="action"
                 style={{ marginRight: "2px" }}
-                onClick={() => setVisible(true)}
+                onClick={() => setConfigSideBarVisible(true)}
+              >
+                <i className="pi pi-fw pi-cog" />
+              </div>
+              <div
+                className="action"
+                style={{ marginRight: "2px" }}
+                onClick={() => setPdfViewerVisible(true)}
               >
                 <i className="pi pi-fw pi-file" />
               </div>
@@ -411,10 +504,113 @@ const InvoiceGenerator = () => {
               {renderGlobalFrame(invoice.details)}
               <InvoicePDFViewContent
                 invoice={invoice}
-                visible={visible}
+                visible={pdfViewerVisible}
                 products={products}
-                setVisible={(value) => setVisible(value)}
+                surplus={surplus}
+                setVisible={(value) => setPdfViewerVisible(value)}
               />
+              <Dialog
+                header={`Configurer : `}
+                visible={configSideBarVisible}
+                position={"right"}
+                style={{ width: "40vw" }}
+                onHide={() => setConfigSideBarVisible(false)}
+                footer={
+                  invoice.id ? (
+                    <div>
+                      <Button
+                        label="Annuler"
+                        onClick={() => {
+                          setConfigSideBarVisible(false);
+                        }}
+                        className="p-button-text p-button-only-text"
+                      />
+                      <Button
+                        label="Enregistrer"
+                        className="p-button-text"
+                        onClick={() => handleSaveInvoiceConfiguration()}
+                        autoFocus
+                      />
+                    </div>
+                  ) : null
+                }
+                draggable={false}
+                resizable={false}
+              >
+                <div className="sidebar-form">
+                  <div className="element td-header">
+                    <div className="title">{"Designation"}</div>
+                    <div className="tag">{"Prix.init"}</div>
+                    <div className="input-tag">{"Surplus"}</div>
+                    <div className="tag last-tag">{"Total"}</div>
+                  </div>
+                  <div>
+                    {Object.keys(JSON.parse(invoice.details, true)).map(
+                      (key) => {
+                        let product = products.filter(
+                          (element) => element.id === parseInt(key)
+                        )[0];
+                        return (
+                          <div className="element">
+                            <div className="title">{product.name}</div>
+                            {invoice.id ? (
+                              <div className="input-tag">
+                                <input
+                                  type="number"
+                                  value={invoice.prices[key] ?? 0}
+                                  onChange={(e) => {
+                                    let newPrices = invoice.prices;
+                                    newPrices[key] = e.target.value;
+                                    setInvoice({
+                                      ...invoice,
+                                      prices: newPrices,
+                                    });
+                                  }}
+                                />
+                              </div>
+                            ) : (
+                              <div className="tag">
+                                <span>{product.price}dh</span>
+                              </div>
+                            )}
+                            {invoice.id ? (
+                              <div className="input-tag">
+                                <input
+                                  type="number"
+                                  value={invoice.surplus[key] ?? 0}
+                                  onChange={(e) => {
+                                    let newSurplus = invoice.surplus;
+                                    newSurplus[key] = e.target.value;
+                                    setInvoice({
+                                      ...invoice,
+                                      surplus: newSurplus,
+                                    });
+                                  }}
+                                />
+                              </div>
+                            ) : (
+                              <div className="tag">
+                                <span>{surplus[key] ?? 0}dh</span>
+                              </div>
+                            )}
+
+                            <div className="tag last-tag">
+                              <span>
+                                {invoice.id
+                                  ? parseFloat(invoice.surplus[key] ?? 0) +
+                                    parseFloat(invoice.prices[key] ?? 0)
+                                  : parseFloat(surplus[key] ?? 0) +
+                                    parseFloat(product.price)}
+                                dh
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      }
+                    )}
+                  </div>
+                </div>
+              </Dialog>
             </Fragment>
           ) : (
             <div className="no_data">

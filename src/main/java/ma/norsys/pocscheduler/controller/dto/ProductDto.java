@@ -22,5 +22,5 @@ public class ProductDto {
     @NotBlank
     private Float price;
 
-    private Date deletedAt;
+    private Date archivedAt;
 }

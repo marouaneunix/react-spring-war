@@ -1,8 +1,14 @@
 import React, { useState, Fragment } from "react";
 import { useQuery } from "react-query";
+import moment from "moment";
 import { ConfirmPopup, confirmPopup } from "primereact/confirmpopup";
 
-import { getProductLists, saveProduct, deleteProduct } from "../../api";
+import {
+  getProductLists,
+  saveProduct,
+  archiveProduct,
+  activateProduct,
+} from "../../api";
 
 import PageHeader from "../common/PageHeader";
 import "./Configuration.local.scss";
@@ -49,27 +55,61 @@ const Configuration = () => {
     return cardFetching;
   };
 
-  const reject = () => {};
-
-  const handleDeleteProduct = async (id) => {
+  const handleArchiveProduct = async (id) => {
     try {
-      const response = await deleteProduct(id);
-      // add new product to the list
+      const response = await archiveProduct(id);
+      let archivedProduct = products.actives.filter(
+        (product) => product.id === response.data
+      )[0];
+      let newActivesProducts = products.actives.filter(
+        (products) => products.id !== response.data
+      );
+      let newArchivesProducts = [...products.archives];
+      newArchivesProducts.unshift({ ...archivedProduct, archivedAt: moment() });
+      setProducts({
+        archives: newArchivesProducts,
+        actives: newActivesProducts,
+      });
     } catch (e) {
       return null;
     }
   };
 
-  const handleSaveProduct = async () => {
+  const handleActivateProduct = async (id) => {
     try {
-      const response = await saveProduct(newProduct);
-      // add new product to the list
+      const response = await activateProduct(id);
+      let activatedProduct = products.archives.filter(
+        (product) => product.id === response.data
+      )[0];
+      let newArchivesProducts = products.archives.filter(
+        (product) => product.id !== response.data
+      );
+      let newActivesProducts = [...products.actives];
+      delete activatedProduct.archivedAt;
+      newActivesProducts.unshift(activatedProduct);
+      setProducts({
+        archives: newArchivesProducts,
+        actives: newActivesProducts,
+      });
     } catch (e) {
       return null;
     }
   };
 
-  const handleActivateProduct = () => {};
+  const handleSaveProduct = async (product) => {
+    try {
+      const response = await saveProduct(product);
+      let newActivesProducts = [...products.actives];
+      newActivesProducts.unshift(response.data);
+      setProducts({
+        ...products,
+        actives: newActivesProducts,
+      });
+    } catch (e) {
+      return null;
+    }
+  };
+
   return (
     <div className="page-content">
       <PageHeader
@@ -205,7 +245,7 @@ const Configuration = () => {
                           {item.archivedAt ? (
                             <div
                               className="action"
-                              onClick={() => handleActivateProduct(item)}
+                              onClick={() => handleActivateProduct(item.id)}
                             >
                               <i className="pi pi-replay" />
                             </div>
@@ -224,7 +264,7 @@ const Configuration = () => {
                                     target: event.currentTarget,
                                     message: "Sure d'archiver ce produit?",
                                     icon: "pi pi-exclamation-triangle",
-                                    accept: () => handleDeleteProduct(item.id),
+                                    accept: () => handleArchiveProduct(item.id),
                                     reject: null,
                                   });
                                 }}

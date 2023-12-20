@@ -22,13 +22,19 @@ public class ProductController {
     }
 
     @PostMapping
-    public void saveProduct(@RequestBody ProductDto productDto){
-        productService.saveProduct(productDto);
+    public ProductDto saveProduct(@RequestBody ProductDto productDto){
+        return productService.saveProduct(productDto);
     }
 
     @PostMapping
-    @RequestMapping("/delete")
-    public void deleteProduct(@RequestBody Long id){
-        productService.deleteProduct(id);
+    @RequestMapping("/archive/{id}")
+    public Long archiveProduct(@PathVariable("id") Long id){
+        return productService.archiveProduct(id);
+    }
+
+    @PostMapping
+    @RequestMapping("/activate/{id}")
+    public Long activateProduct(@PathVariable("id") Long id){
+        return productService.activateProduct(id);
     }
 }

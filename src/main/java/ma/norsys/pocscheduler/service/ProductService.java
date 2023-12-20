@@ -2,14 +2,12 @@ package ma.norsys.pocscheduler.service;
 
 
 import lombok.RequiredArgsConstructor;
-import ma.norsys.pocscheduler.controller.dto.ClientDto;
 import ma.norsys.pocscheduler.controller.dto.ProductDto;
 import ma.norsys.pocscheduler.domain.Product;
 import ma.norsys.pocscheduler.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,15 +35,28 @@ public class ProductService {
             return productMapOne;
         }
 
-    public void saveProduct(ProductDto productDto) {
+    public ProductDto saveProduct(ProductDto productDto) {
         Product product = new Product();
         product.setPrice(productDto.getPrice());
         product.setName(productDto.getName());
         productRepository.save(product);
+        productDto.setId(product.getId());
+        return productDto;
     }
 
-    public void deleteProduct(Long id) {
+    public Long activateProduct(Long id) {
         Optional<Product> product = productRepository.findById(id);
-        productRepository.delete(product.get());
+        Product activatedProduct = product.get();
+        activatedProduct.setArchivedAt(null);
+        productRepository.save(activatedProduct);
+        return id;
+    }
+
+    public Long archiveProduct(Long id) {
+        Optional<Product> product = productRepository.findById(id);
+        Product activatedProduct = product.get();
+        activatedProduct.setArchivedAt(new Date());
+        productRepository.save(activatedProduct);
+        return id;
     }
 }
