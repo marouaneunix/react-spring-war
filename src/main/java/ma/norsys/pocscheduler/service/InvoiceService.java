@@ -27,7 +27,7 @@ public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final ObjectMapper objectMapper;
 
-    public InvoiceDto findInvoiceByClientAndMonth(InvoiceRequestDto dto) throws JsonProcessingException{
+    public InvoiceDto findInvoiceByClientAndMonthAndYear(InvoiceRequestDto dto) throws JsonProcessingException{
         Optional<Client> clientOptional = clientRepository.findById(dto.getClient());
         ClientDto clientDto = new ClientDto(
                 clientOptional.get().getId(),
@@ -50,6 +50,7 @@ public class InvoiceService {
                     invoice.getSurplus(),
                     invoice.getMonth(),
                     invoice.getYear(),
+                    invoice.getCode(),
                     invoice.getGeneratedAt(),
                     clientDto
                 );

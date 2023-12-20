@@ -21,7 +21,7 @@ public class InvoiceController {
     @CrossOrigin("*")
     @GetMapping
     public InvoiceDto findByMonth(InvoiceRequestDto requestDto) throws JsonProcessingException {
-        return invoiceService.findInvoiceByClientAndMonth(requestDto);
+        return invoiceService.findInvoiceByClientAndMonthAndYear(requestDto);
     }
 
     @CrossOrigin("*")

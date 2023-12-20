@@ -36,7 +36,7 @@ public class InvoiceDto {
     private Date generatedAt;
 
 
-    public InvoiceDto(Long id, String details, String prices, String surplus, String month, String year, Date generatedAt, ClientDto clientDto) {
+    public InvoiceDto(Long id, String details, String prices, String surplus, String month, String year, String code, Date generatedAt, ClientDto clientDto) {
         this.setId(id);
         this.setDetails(details);
         this.setPrices(prices);
@@ -45,6 +45,7 @@ public class InvoiceDto {
         this.setClient(clientDto);
         this.setGeneratedAt(generatedAt);
         this.setYear(year);
+        this.setCode(code);
 
     }
 }
