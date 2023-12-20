@@ -31,7 +31,6 @@ const ClientCalendar = () => {
   const [selectedVoucher, setSelectedVoucher] = useState(null);
   const [saving, setSaving] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [monthCalendar, setMonthCalendar] = useState(moment().month() + 1);
   const [filter, setFilter] = useState({
     month: moment().month() + 1,
     year: moment().year(),
@@ -264,12 +263,16 @@ const ClientCalendar = () => {
                     onClick={() => {
                       if (filter.month > 1) {
                         setFilter({ ...filter, month: filter.month - 1 });
+                        let calendarApi = calendarRef.current.getApi();
+                        calendarApi.prev();
                       } else if (filter.year > 2023) {
                         setFilter({
                           ...filter,
                           month: 12,
                           year: filter.year - 1,
                         });
+                        let calendarApi = calendarRef.current.getApi();
+                        calendarApi.prev();
                       }
                     }}
                   >
@@ -284,12 +287,16 @@ const ClientCalendar = () => {
                     onClick={() => {
                       if (filter.month < 12) {
                         setFilter({ ...filter, month: filter.month + 1 });
+                        let calendarApi = calendarRef.current.getApi();
+                        calendarApi.next();
                       } else if (filter.year < moment().year()) {
                         setFilter({
                           ...filter,
                           month: 1,
                           year: filter.year + 1,
                         });
+                        let calendarApi = calendarRef.current.getApi();
+                        calendarApi.next();
                       }
                     }}
                   >
@@ -306,7 +313,7 @@ const ClientCalendar = () => {
               locale={frLocale}
               dateClick={(date) => {
                 let clickedMonth = date && date.dateStr.split("-")[1];
-                if (parseInt(clickedMonth) === monthCalendar) {
+                if (parseInt(clickedMonth) === filter.month) {
                   let voucher =
                     vouchers.filter(
                       (item) => item.day.split("T")[0] === date.dateStr
@@ -315,7 +322,7 @@ const ClientCalendar = () => {
                           (item) => item.day.split("T")[0] === date.dateStr
                         )[0]
                       : {
-                          month: monthCalendar,
+                          month: filter.month,
                           day: date.dateStr,
                           client: id,
                           details: {},
