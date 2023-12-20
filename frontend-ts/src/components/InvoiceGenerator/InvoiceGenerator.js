@@ -206,6 +206,9 @@ const InvoiceGenerator = () => {
           name: item.name,
         };
       });
+    if (leftProducts.length === 0) {
+      return;
+    }
     tds.push(
       <td class="first-sticky" style={{ padding: "4px 0px" }}>
         <Dropdown
