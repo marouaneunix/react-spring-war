@@ -1,0 +1,55 @@
+.logo {
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  
+  img {
+    height: 60px;
+  }
+}
+
+.p-megamenu {
+  padding: 0.5rem 0.5rem 0.5rem 5.5rem;
+}
+.app {
+  &_header {
+    position: fixed;
+    height: 80px;
+    width: 100%;
+    top: 0px;
+  }
+  &_menu {
+    display: flex;
+    padding: 0px 0px 0px 50px;
+    background: #1c2d57;
+    position: fixed;
+    width: 100%;
+    top: 80px;
+
+    a {
+      text-decoration: none;
+    }
+
+    .menu_item {
+      padding: 10px 30px;
+      display: flex;
+      align-items: center;
+      color: rgba(177, 227, 255, 1);
+      cursor: pointer;
+
+      i {
+        margin-right: 5px;
+        cursor: pointer;
+        font-size: 20px;
+      }
+      label {
+        cursor: pointer;
+      }
+
+      &:hover, &_active {
+        background: rgba(53, 79, 143, 0.7);
+        color: #FFF;
+      }
+    }
+  }
+}
