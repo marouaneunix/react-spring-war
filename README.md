@@ -50,3 +50,30 @@ REACT_APP_API_URL=http://poc-add-dev/pocscheduler-0.0.1-SNAPSHOT/
 ```
 ./mvn clean package -D frontend.env=prod
 ```
+
+## SonarQube
+
+Run SonarQube with docker
+```shell
+docker run -d --name sonarqube -p 9000:9000 sonarqube
+```
+
+Add the following plugin to pom.xml file
+```
+<plugin>
+    <groupId>org.sonarsource.scanner.maven</groupId>
+    <artifactId>sonar-maven-plugin</artifactId>
+    <version>3.9.1.2184</version>
+</plugin>
+```
+
+Run the following command
+```
+mvn sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.login=generated-token
+```
+
+If you want to add code coverage to sonarQube
+
+1.  Add jacoco plugin to the project [link](https://www.baeldung.com/sonarqube-jacoco-code-coverage)
+2. run test + sonarQube
+
