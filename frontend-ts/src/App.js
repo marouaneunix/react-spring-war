@@ -7,6 +7,7 @@ import Configuration from "./components/Configuration/Configuration";
 import InvoiceGenerator from "./components/InvoiceGenerator/InvoiceGenerator";
 import Clients from "./components/Clients/Clients";
 import ClientCalendar from "./components/ClientCalendar/ClientCalendar";
+import GeneralCalendar from "./components/GeneralCalendar/GeneralCalendar";
 import "primereact/resources/themes/lara-light-indigo/theme.css"; //theme
 import "primereact/resources/primereact.min.css"; //core css
 import "primeicons/primeicons.css";
@@ -29,6 +30,7 @@ function App() {
           <Route element={<Layout />}>
             <Route path="clients" element={<Clients />} />
             <Route path="configuration" element={<Configuration />} />
+            <Route path="general-calendar" element={<GeneralCalendar />} />
             <Route path="calendar/:id" element={<ClientCalendar />} />
             <Route path="invoice/:id" element={<InvoiceGenerator />} />
             {/* <Route path="calendar" element={<ClientCalendar />} /> */}

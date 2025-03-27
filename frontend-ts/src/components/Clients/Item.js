@@ -37,22 +37,22 @@ const Item = ({
             </div>
           </div>
           <div className="item_actions">
+            <Link to={`/calendar/${item.id}`}>
+              <div className="action">
+                <i className="pi pi-calendar" />
+              </div>
+            </Link>
+            <Link to={`/invoice/${item.id}`}>
+              <div className="action">
+                <i className="pi pi-file" />
+              </div>
+            </Link>
             {item.archivedAt ? (
               <div className="action" onClick={() => onActivateClient(item.id)}>
                 <i className="pi pi-replay" />
               </div>
             ) : (
               <Fragment>
-                <Link to={`/calendar/${item.id}`}>
-                  <div className="action">
-                    <i className="pi pi-calendar" />
-                  </div>
-                </Link>
-                <Link to={`/invoice/${item.id}`}>
-                  <div className="action">
-                    <i className="pi pi-file" />
-                  </div>
-                </Link>
                 <div
                   className="action"
                   onClick={() => onConfingurateClient(item)}

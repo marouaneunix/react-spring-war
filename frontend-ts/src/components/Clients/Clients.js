@@ -315,7 +315,11 @@ const Clients = () => {
                       />
                     </div>
                     <div className="tag last-tag">
-                      <span>{item.price}dh</span>
+                      <span>
+                        {parseFloat(item.price ?? 0) +
+                          parseFloat(configuration[item.id] ?? 0)}
+                        dh
+                      </span>
                     </div>
                   </div>
                 </Fragment>

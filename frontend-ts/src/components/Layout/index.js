@@ -18,6 +18,12 @@ const Layout = () => {
       icon: "pi pi-fw pi-cog",
       url: "/configuration",
     },
+    {
+      id: 3,
+      label: "Calendrier",
+      icon: "pi pi-fw pi-calendar",
+      url: "/general-calendar",
+    },
   ];
 
   return (

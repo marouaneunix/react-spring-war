@@ -66,7 +66,7 @@ const InvoiceGenerator = () => {
     }
   });
 
-  let getProductsSurplus = useQuery(["getProductSurplus"], async () => {
+  let productsSurplusQuery = useQuery(["getProductSurplus"], async () => {
     try {
       const response = await getClientConfiguration(id);
       setSurplus(response.data ? JSON.parse(response.data.details) : {});
@@ -104,8 +104,8 @@ const InvoiceGenerator = () => {
     try {
       const response = await saveInvoiceDetails({
         ...invoice,
-        prices: null,
-        surplus: null,
+        prices: invoice.id ? JSON.stringify(invoice.prices) : "",
+        surplus: invoice.id ? JSON.stringify(invoice.surplus) : "",
         details: JSON.stringify(editedMatrix),
         productDetailsList,
       });
@@ -150,7 +150,11 @@ const InvoiceGenerator = () => {
         details: JSON.stringify(details),
         productDetailsList,
       });
-      setInvoice(response.data);
+      setInvoice({
+        ...response.data,
+        surplus: response.data.surplus ? JSON.parse(response.data.surplus) : {},
+        prices: response.data.prices ? JSON.parse(response.data.prices) : {},
+      });
       setSaving(false);
     } catch (e) {
       return null;
@@ -420,33 +424,30 @@ const InvoiceGenerator = () => {
             </Fragment>
           ) : (
             <Fragment>
-              {invoice.id ? (
-                <div
-                  className="action"
-                  style={{
-                    marginRight: "2px",
-                    cursor: "default",
-                    opacity: 0.5,
-                  }}
-                >
-                  <i className="pi pi-fw pi-lock" />
-                </div>
+              {!invoice.client.archivedAt ? (
+                invoice.id ? (
+                  <div
+                    className="action"
+                    style={{
+                      marginRight: "2px",
+                      cursor: "default",
+                      opacity: 0.5,
+                    }}
+                  >
+                    <i className="pi pi-fw pi-lock" />
+                  </div>
+                ) : (
+                  <div
+                    className="action"
+                    style={{ marginRight: "2px" }}
+                    onClick={() => handleGenerateClientInvoice()}
+                  >
+                    <i className="pi pi-fw pi-lock-open" />
+                  </div>
+                )
               ) : (
-                <div
-                  className="action"
-                  style={{ marginRight: "2px" }}
-                  onClick={() => handleGenerateClientInvoice()}
-                >
-                  <i className="pi pi-fw pi-lock-open" />
-                </div>
+                ""
               )}
-              <div
-                className="action"
-                style={{ marginRight: "2px" }}
-                onClick={() => setConfigSideBarVisible(true)}
-              >
-                <i className="pi pi-fw pi-cog" />
-              </div>
               <div
                 className="action"
                 style={{ marginRight: "2px" }}
@@ -454,9 +455,23 @@ const InvoiceGenerator = () => {
               >
                 <i className="pi pi-fw pi-file" />
               </div>
-              <div className="action" onClick={() => setEditedMatrix(details)}>
-                <i className="pi pi-fw pi-pencil" />
-              </div>
+              {!invoice.client.archivedAt && (
+                <Fragment>
+                  <div
+                    className="action"
+                    style={{ marginRight: "2px" }}
+                    onClick={() => setConfigSideBarVisible(true)}
+                  >
+                    <i className="pi pi-fw pi-cog" />
+                  </div>
+                  <div
+                    className="action"
+                    onClick={() => setEditedMatrix(details)}
+                  >
+                    <i className="pi pi-fw pi-pencil" />
+                  </div>
+                </Fragment>
+              )}
             </Fragment>
           )}
         </div>
